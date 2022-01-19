@@ -69,14 +69,13 @@ function [Ws,Psi, p_Z,Lnp] =  empcca(Ys,X,dimz,iter)
         end
 
         %calculate Lnp
-        Lp = 0;
-        for i = 1:2
-            Wx = Ws{i}(:,1:dimx);
-            Wz = Ws{i}(:,dimx+1:dimw);
-            C = Psi{i} + Wz * Wz';
-            Lp = Lp + (-0.5) * trace(inv(C) * (Ys{i} - Wx * X) * (Ys{i}-Wx * X)') ...
-                -0.5 * log(det(C)) * N - dims(i)/2 * log(2*pi) * N;
-        end
+        Wx = [Ws{1}(:,1:dimx);Ws{2}(:,1:dimx)];
+        Wz = [Ws{1}(:,dimx+1:dimw);Ws{2}(:,dimx+1:dimw)];
+        C = blkdiag(Psi{1},Psi{2}) + Wz * Wz';
+        Y = [Ys{1};Ys{2}];
+        Lp = (-0.5) * trace(inv(C) * (Y - Wx * X) * (Y-Wx * X)') ...
+            -0.5 * log(det(C)) * N - (dims(1)+dims(2))/2 * log(2*pi) * N;
+        
         if(it==1)
             Lnp = Lp;
         else
